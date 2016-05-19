@@ -1,1 +1,39 @@
-test
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>javascript练习</title>
+	<style type="text/css">
+		
+	</style>
+</head>
+<body>
+	<ul>
+		<li><a href="">测试文字</a></li>
+		<li><a href="">测试文字</a></li>
+		<li><a href="">测试文字</a></li>
+		<li><a href="">测试文字</a></li>
+		<li><a href="">测试文字</a></li>
+		<li><a href="http://www.baidu.com" class="popup">测试文字</a></li>
+		<li><a href="">测试文字</a></li>
+		<li><a href="">测试文字</a></li>
+		<li><a href="">测试文字</a></li>
+		<li><a href="">测试文字</a></li>
+	</ul>
+	<script type="text/javascript">
+		window.onload = prepareLinks;
+		function prepareLinks(){
+			var links = document.getElementByTagname('a');
+			for( var i=0; i<links.length; i++){
+				if(links[i].getAttribute("class") == "popup"){
+					links[i].onclick = function(){
+						alert('ss')
+						popUp(this.getAttribute("href"));
+						return false;
+					}
+				}
+			}
+		}
+	</script>
+</body>
+</html>
