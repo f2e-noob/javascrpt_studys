@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">
 <head>
-	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<title>javascript练习</title>
 	<style type="text/css">
 		
@@ -27,14 +27,13 @@
 			for( var i=0; i<links.length; i++){
 				if(links[i].getAttribute("class") == "popup"){
 					links[i].onclick = function(){
-						alert('ss')
 						popUp(this.getAttribute("href"));
 						return false;
-					}
+					} 
 				}
 			}
 		}
 		if(!getElementById || !getElementByTagname) return false;
 	</script>
 </body>
-</html> 
+</html>
