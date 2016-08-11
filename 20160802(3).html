@@ -1,0 +1,515 @@
+{% extends "../_project_base.html" %}
+{% block style %}
+<link href="/static/libs/bootstrap/css/bootstrap-switch.css" rel="stylesheet"/>
+<link href="/static/libs/jquerydatabase/jquery.datatables.css" rel="stylesheet"/>
+<link href="/static/web/css/common.css" rel="stylesheet">
+<style>
+  .modal-dialog{
+    width:700px;
+    margin:60px auto;
+  }
+  table{
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
+  .tip{
+    width: 489px;
+    margin-left: 66px;
+  }
+  .group_tit{
+    font-size:14px;
+    margin-bottom: 5px;
+  }
+  .tab-pane{
+    padding-top: 0px;
+  }
+  .dataTable thead > tr > th {
+    background-color: #62A5CC;
+  }
+  .dataTables_scrollBody{
+    margin-top:-2px;
+  }
+  .sensor_set_tab>li.active>a, .sensor_set_tab>li.active>a:hover, .sensor_set_tab>li.active>a:focus {
+    color: #555;
+    cursor: default;
+    background-color: none;
+    border: none;
+    border-bottom-color: none;
+  }
+  .sensor_set_tab2{
+    margin-bottom:20px;
+  }
+  .dataTable{
+    display:table;
+    margin-bottom:0px;
+  }
+  .table{
+    width:100%!important;
+    margin-bottom:0px;
+  }
+  .thead-icon{
+    color: #FFFF00;
+  }
+  .fileinput-button input {
+    position: absolute;
+    top: -8px;
+    right: -11px;
+    margin: 0;
+    opacity: 0;
+    -ms-filter: 'alpha(opacity=0)';
+    font-size: 20px;
+    direction: ltr;
+    cursor: pointer;
+    height: 30px;
+    width: 70px;
+  }
+  .main-content{
+    margin-top: 1px;
+  }
+  /*.table thead > tr > th{
+    padding-top:0px;
+    padding-bottom:0px;
+  }*/
+  .class_batch_edit{
+    position: relative;
+  }
+  .dataTables_scrollHeadInner{
+    width: 100%!important;
+    padding-right: 17px;
+  }
+  .thead_th{
+    font-size:12px;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .Validform_checktip{
+    position: absolute;
+  }
+  .set_value span{
+    float:left;
+    display: inline-block;
+    margin-left:5px;
+    line-height: 17px;
+  }
+  .set_value span:hover{
+    background: #ed9c28;
+  }
+  .set_value span i{
+    margin-left:5px;
+  }
+</style>
+{% end %}
+{% block content %}
+{% from logic.define import NODE_TYPE %}
+<div class="proset_breadcrumb">
+  <h5>设备管理</h5>
+</div>
+<div class="">
+  <div class=" fade in" id="">
+    <div class="form-group">
+      <a class="btn btn-sm btn-danger batchDel pull-right hide access_class" access_class="plat.sensor_wsns.OperationSensorWsnsBatchdelHandler" sensor_type = "" href="#">批量删除</a>
+      <div class="clearfix"></div>
+    </div>
+    <table class="table table-bordered table-hover sensor_set_tab" style="table-layout: fixed;">
+      <thead>
+      <tr>
+        <th class="th3 text-center"><input type="checkbox" class="outerCheck"></th>
+        <th class="th5 sorting" col-name='col_sensor_id' title="点击表头进行排序">节点</th>
+        <th class="th5" col-name='col_node_id' title="点击表头进行排序">父节点</th>
+        <th class='th7' col-name="">节点类型</th>
+        <th class="th8">SN号</th>
+        <th class="th8 sorting">最后响应时间</th>
+        <th class='class_batch_edit th6 access_class' access_class="plat.sensor_wsns.OperationSensorWsnsBatcheditHandler" name="interval" col-name="col_isshow" sensor_type = "" title="报警间隔">报警间隔（分钟）
+          <i class="glyphicon glyphicon-pencil thead-icon unshown pen" style="top: 13px;right: 5px;position: absolute;display:none;"></i>
+        </th>
+        <th class="th5">报警开关</th>
+        <th class="th10">限值</th>
+        <th class="th7">操作</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for p in wsns %}
+      <tr id="{{p.get('_id','')}}">
+        <td class="th3 text-center">
+          <input class="class_head_checkbox _CheckBox modal_CheckBox" type="checkbox" name="CheckBox">
+        </td>
+        <td class='th5 td_node_id operate' style="color:#428bca;">{{p.get('node_id', '')}}</td>
+        <td class='th6 td_parent'>{{p.get('parent', '')}}</td>
+        <td class='th5 td_sensor_type'>{{p.get('product_type', '') or p.get('node_type', '')}}</td>
+        <td class="th5 td_serial_number">{{p.get('serial_number','')}}</td>
+        <td class="th8 td_dtime">{{ p.get('dtime','')}}</td>
+        <td class="th8 td_interval">{{ p.get('interval','')}}</td>
+        <td class="th5 operate">
+          <input class='switch_checkbox class_group_alarmEmail' type="checkbox" data-on-text="开" data-off-text="关" data-size="mini" data-switch-value="mini" data-on-color="success">
+        </td>
+        <td class="th10 operate set_value">
+          <span class="label label-danger">电流[10,20] <i class="icon-edit"></i></span>
+          <span class="label label-danger">电流[10,20] <i class="icon-edit"></i></span>
+          <span class="label label-danger">电流[10,20] <i class="icon-edit"></i></span>
+        </td>
+        <!-- <td class="th8">{{p.get('limit','')}}</td> -->
+        <td class="th10 operate">
+          <div class="btn-group">
+            <button class="btn btn-xs btn-warning btn-cog" data-toggle="modal">限值设置</button>
+            <button class="btn btn-xs btn-success btn-edit access_class hide" data-toggle="modal" access_class="plat.sensor_wsns.OperationSensorWsnsEditHandler">修改</button>
+            <button class="btn btn-xs btn-danger class_del access_class hide" access_class="explat.sensor_wsns.OperationSensorWsnsDelHandler">删除</button>
+          </div>
+        </td>
+      </tr>
+      {% end %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<!-- 修改表单 -->
+<div class="modal fade in editmodal">
+  <form action="/operation/sensor_wsns/{{code_name}}/edit" method="post" class="form-horizontal validform editform">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h5 class="modal-title">设备管理修改</h5>
+        </div>
+        <div class="clearfix"></div>
+        <div class="modal-body">
+          <input type="hidden" name="_id" value="" class="_id">
+          <div class="form-group">
+            <label class="col-xs-3 control-label">节点</label>
+            <div class="col-xs-6">
+              <input class="form-control node_id" name=""  readonly='readonly'>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="col-xs-3 control-label">报警检查间隔</label>
+            <div class="input-group col-xs-6">
+              <input class="form-control interval" name="interval" datatype="/^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-5])$/" id="batch_edit" errormsg="请输入范围在1-65535的数字" ignore="ignore">
+              <span class="input-group-addon">分钟</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">
+            关闭
+            <span class="glyphicon glyphicon-off"></span>
+          </button>
+          <button type="submit" class="btn btn-primary">
+            保存
+            <span class="glyphicon glyphicon-floppy-disk"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- 批量修改form表单 -->
+<div class="modal fade in" id="id_batch">
+  <form action="/operation/sensor_wsns/{{code_name}}/batchedit" method="post" class="form-horizontal validform batchform">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h5 class="modal-title">报警检查间隔批量修改</h5>
+        </div>
+        <div class="clearfix"></div>
+        <div class="modal-body">
+          <input type="hidden" name="_ids" id="id_batch_ids" value="">
+          <div class="form-group">
+            <label class="col-xs-3 control-label label_name">报警检查间隔</label>
+            <div class="col-xs-6">
+              <input class="form-control postname" name="interval" datatype="/^([1-9][0-9]{0,3}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]{1}|6553[0-5])$/" id="batch_edit" errormsg="请输入范围在1-65535的数字" ignore="ignore"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">
+            关闭
+            <span class="glyphicon glyphicon-off"></span>
+          </button>
+          <button type="submit" class="btn btn-primary">
+            保存
+            <span class="glyphicon glyphicon-floppy-disk"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- 限值设置form表单 -->
+<div class="modal fade in" id="id_cog">
+  <form action="" method="post" class="form-horizontal validform batchform">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h5 class="modal-title">限值设置</h5>
+        </div>
+        <div class="clearfix"></div>
+        <div class="modal-body">
+          <input type="hidden" name="_ids" id="" value="">
+          <div class="form-group">
+            <label class="col-xs-3 control-label label_name">代号</label>
+            <div class="col-xs-6">
+              <input class="form-control" name="" datatype="" id="" errormsg="请输入范围在1-65535的数字" ignore="ignore"></div>
+          </div>
+          <div class="form-group">
+            <label class="col-xs-3 control-label label_name">名称</label>
+            <div class="col-xs-6">
+              <input class="form-control" name="" datatype="" id="" errormsg="请输入范围在1-65535的数字" ignore="ignore"></div>
+          </div>
+          <div class="form-group">
+            <label class="col-xs-3 control-label label_name">上限</label>
+            <div class="col-xs-6">
+              <input class="form-control" name="" datatype="" id="" errormsg="请输入范围在1-65535的数字" ignore="ignore"></div>
+          </div>
+          <div class="form-group">
+            <label class="col-xs-3 control-label label_name">下限</label>
+            <div class="col-xs-6">
+              <input class="form-control" name="" datatype="" id="" errormsg="请输入范围在1-65535的数字" ignore="ignore"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">
+            关闭
+            <span class="glyphicon glyphicon-off"></span>
+          </button>
+          <button type="submit" class="btn btn-primary">
+            保存
+            <span class="glyphicon glyphicon-floppy-disk"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+
+{% end %}
+{% block js %}
+<script src="/static/libs/Validform_v5.3.2_min.js"></script>
+<script src="/static/libs/bootstrap/js/bootstrap-switch.js"></script>
+<script src="/static/libs/jquerydatabase/jquery.dataTables.min.js"></script>
+<script src='/static/libs/jquery.cookie.js'></script>
+<script type="text/javascript">
+  $(function(){
+    set_nav('sensor_wsns');
+    $(".switch_checkbox").bootstrapSwitch();
+
+    var scrollHeight = $(window).height() - 260;
+
+    $('.sensor_set_tab').dataTable({
+      "bPaginate": false, //开关，是否显示分页器
+      "bInfo": false, //开关，是否显示表格的一些信息
+      "bFilter": false, //开关，是否启用客户端过滤器
+      "sScrollY":scrollHeight, //是否开启垂直滚动，以及指定滚动区域大小,可设值：'disabled','2000px'
+      "bScrollCollapse": true,
+      "bSort": true, //开关，是否启用各列具有按列排序的功能
+      "bSortClasses": true,
+      "oLanguage":{
+        "sEmptyTable": " ",
+      },
+      "aoColumnDefs": [
+        { "bSortable": false, "aTargets": [0,7,9] }
+      ]
+    });
+
+    function clearselect(){
+      $('tbody tr').removeClass('success');
+      $('.class_batch_edit,.class_monitor_batch_edit').find('i').css('display','none');
+      $('.class_head_checkbox').prop('checked', false);
+      $('.outerCheck').prop('checked', false);
+    }
+
+    $('.btn-edit').on('click',function(){
+      var _tr = $(this).parents('tr');
+      var _id = _tr.attr('id');
+      var _form = $('.editmodal');
+      _form.modal('show');
+      _form.find('input').val('');
+      _form.find('input._id').val(_id);
+      _form.find('input.node_id').val(_tr.find('.td_node_id').text());
+      _form.find('input.interval').val(_tr.find('.td_interval').text());
+    });
+
+    var tiptype = function(msg,o,cssctl){
+      var objtip=o.obj.next('.Validform_checktip');
+      if($(objtip).size()==0){
+        objtip = $('<label>').addClass('Validform_checktip');
+        o.obj.after(objtip)
+      }
+      if(!(o.type == 2)){
+        if(!o.obj.is("form")){//验证表单元素时o.obj为该表单元素，全部验证通过提交表单时o.obj为该表单对象;
+          objtip.text(msg).show();
+        }
+      }else{
+        o.obj.next('.Validform_checktip').hide();
+      }
+    };
+
+    //修改时表单验证
+    $(".editform").Validform({
+      ajaxPost:true,
+      beforeSubmit:function(curform){},
+      callback:function(data){
+        if(data.status){
+          var _tr = $('#' + data.bind_kwargs['_id']);
+          for(var key in data.bind_kwargs){
+            _tr.find('.td_' + key).text(data.bind_kwargs[key]);
+          }
+          $('.editmodal').modal('hide');
+          clearselect();
+        }
+      },
+      tiptype:tiptype
+    });
+
+    //鼠标滑过全选
+    $('tbody tr td').not('.operate').mousedown(function(event) {
+      $(this).parent('tr').toggleClass('success');
+      $('tbody tr').bind('mouseenter', function(event) {
+        $(this).toggleClass('success');
+      });
+    });
+    $('table').on('mouseup', '*', function(event) {
+      $('thead .thead-icon').addClass('unshown');
+      $('tbody tr').unbind('mouseenter');
+      var flag = 0;
+      var batch_tr = [];
+      $(' tbody tr').each(function(index, el) {
+        if($(this).hasClass('success')){
+          flag++;
+          $(this).find(".modal_CheckBox").prop("checked", true);
+          batch_tr.push($(this).attr('id'));
+        } else {
+          $(this).find(".modal_CheckBox").prop("checked", false);
+        }
+      });
+      if (flag>0) {
+        $(' thead .thead-icon').removeClass('unshown');
+        $(' thead').addClass('th-clickable');
+        $('#id_batch_ids').attr('value', batch_tr);
+        $('.batchDel').attr('_ids',batch_tr);
+        $('.pen').css('display','block');
+        if (flag == $("input.modal_CheckBox").length) {
+          $('.outerCheck').prop('checked',true);
+        }else{
+          $('.outerCheck').prop('checked',false);
+        }
+      }else {
+        $('.outerCheck').prop('checked',false);
+        $('.pen').css('display','none');
+        $(' thead .thead-icon').addClass('unshown');
+        $(' thead').removeClass('th-clickable');
+      }
+    });
+
+    //点击chenckbox时,与点击tr同步
+    $("input.modal_CheckBox").on('click',function(){
+      if ($(this).parents('tr').hasClass('success')) {
+        $(this).prop('checked',true);
+      }else{
+        $(this).prop('checked',false);
+      }
+    });
+
+    //点击全选按钮,给行加success,input加checked
+    $('.outerCheck').click(function(){
+      var batch_ids = [];
+      $("input.modal_CheckBox").prop('checked', $('.outerCheck').prop("checked"));
+      //$("input.modal_CheckBox").parents('tr').toggleClass('success');
+      if ($('.outerCheck').prop("checked")) {
+        $('.pen').css('display','block');
+        $("input.modal_CheckBox").parents('tr').addClass('success');
+        $("input.modal_CheckBox").each(function(i,item){
+          var id = $(item).parents('tr').attr('id');
+          batch_ids.push(id);
+        });
+        $('.batchDel').attr('_ids',batch_ids);
+        $('#id_batch_ids').attr('value', batch_ids);
+      }else{
+        $('.pen').css('display','none');
+        $("input.modal_CheckBox").parents('tr').removeClass('success');
+        $('.batchDel').attr('_ids','');
+        $('#id_batch_ids').attr('value', '');
+      }
+    });
+
+    //批量修改
+    $('.class_batch_edit').click(function(){
+      if ($('tr.success').length) {
+        var _form = $('#id_batch');
+        _form.modal('show');
+        _form.find('.postname').val('');
+        var label_name = $(this).attr('title');
+        var postname = $(this).attr('name');
+        _form.find('.label_name').text(label_name);
+        _form.find('.postname').attr('name',postname);
+      };
+    });
+
+    //批量修改表单验证
+    $(".batchform").Validform({
+      ajaxPost:true,
+      tiptype:tiptype,
+      beforeSubmit:function(curform){},
+      callback:function(data){
+        if(data.status){
+          var _ids = data.bind_kwargs['_ids'].split(',');
+          for(var key in data.bind_kwargs){
+            if (key != '_ids') {
+              for (var i = 0; i < _ids.length; i++) {
+                $('#' + _ids[i]).find('.td_' + key).text(data.bind_kwargs[key]);
+              }
+            }
+          }
+          $('#id_batch').modal('hide');
+          clearselect();
+        }
+      }
+    });
+
+    $('.batchDel').click(function(){
+      if ($('tr.success').length) {
+        var _ids = $(this).attr('_ids');
+        if (confirm('确认是否删除选中节点?')) {
+          $.post('/operation/sensor_wsns/{{code_name}}/batchdel',{'_ids':_ids},function(rs){
+            if (rs.status) {
+              _ids = _ids.split(',');
+              for (var i = 0; i < _ids.length; i++) {
+                $('#' + _ids[i]).remove();
+              }
+              clearselect();
+            }
+          });
+        }
+      }
+    });
+
+    $('.class_del').on('click',function(){
+      var _id = $(this).parents('tr').attr('id');
+      if (confirm('确认删除此节点?')) {
+        $.post('/operation/sensor_wsns/{{code_name}}/del',{_id:_id},function(rs){
+          if (rs.status) {
+            $('#' + _id).remove();
+            clearselect();
+          }
+        });
+      }
+    });
+
+    // 节点详情查看
+    $('.td_node_id').click(function(event) {
+      var url = '/operation/getnodeinfo/{{code_name}}?node_id='+$(this).html();
+      window.location = url;
+    });
+
+    //限值设置
+    $('.btn-cog').click(function(){
+      $('#id_cog').modal('show');
+    })
+  })
+</script>
+{% end %}

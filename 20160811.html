@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>javascript练习</title>
+	<style type="text/css">
+		
+	</style>
+</head>
+<body>
+	<h2>20160811练习</h2>
+	<p>1.对象是名/值对的集合、或字符串到值映射的集合</p>
+	<p>2.通过"."或"[]"来访问对象属性</p>
+	<p id="value">sss</p>
+	<script type="text/javascript">
+		// function factorial(n){
+		// 	var product = 1;
+		// 	while( n > 1){
+		// 		console.log(product, n);
+		// 		product *= n;
+		// 		n--;
+		// 	}
+		// 	return product;
+		// }
+		// var s = factorial(4);
+		// console.log(s);
+		// document.write(s)
+		function factorial2(n){
+			var i, product = 1;
+			for ( i =2; i <= n; i++)
+			product *=i;
+			return product;
+		}
+		var a =  factorial2(5);
+		console.log(a);
+		document.write(a)
+	</script>
+</body>
+</html> 
