@@ -1,0 +1,29 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>javascript练习</title>
+	<style type="text/css">
+
+	</style>
+</head>
+<body>
+	<button onclick="debuglog()">触发事件</button>
+	<script type="text/javascript">
+		function debuglog(){
+			var log = document.getElementById('debuglog');
+			if(!log){
+				log = document.createElement("div");
+				log.id = "debuglog";
+				log.innerHTML = "<h1>Debug Log</h1>";
+				document.body.appendChild(log);
+			}
+			var pre = document.createElement('pre');
+			var text = document.createTextNode("msg")
+			pre.appendChild(text);
+			log.appendChild(pre);
+		}
+		
+	</script>    
+</body>
+</html> 

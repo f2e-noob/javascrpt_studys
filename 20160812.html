@@ -1,0 +1,27 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>javascript练习</title>
+	<style type="text/css">
+		
+	</style>
+</head>
+<body>
+	<script type="text/javascript">
+		$('.delbtn').on('click',function(){
+				_id = $(this).parents('tr').attr('_id');
+				console.log(_id);
+				if(confirm("是否确定删除")){
+					$.post('/admin/reportconfig_template/delete',{'_id':_id}, function(rs){
+						if(rs.status){
+							location.reload();
+						}else{
+							alert(rs.msg);
+						}
+					})
+				}
+			})
+	</script>
+</body>
+</html> 
