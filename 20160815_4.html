@@ -1,0 +1,35 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>javascript练习</title>
+	<style type="text/css">
+		img {
+			border:1px solid #ccc;
+			padding:4px;
+			border-radius: 5px;
+		}
+	</style>
+</head>
+<body>
+	<img src="images/ipad.jpg">
+	<img src="images/iphone.jpg">
+	<img src="images/ipod.jpg">
+	<img src="images/mac.jpg">
+	<script type="text/javascript">
+		window.onload = function(){
+			var images = document.getElementsByTagName("img");
+			for(var i = 0; i < images.length; i++){
+				var image = images[i];
+				if(image.addEventListener){
+					image.addEventListener("click", function(e){
+						e.target.style.display = "none";
+					}, false);
+				}else{
+					image.attachEvent("onclick",hide);
+				}
+			}
+		}	
+	</script>    
+</body>
+</html> 
