@@ -1,0 +1,28 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>javascript练习</title>
+	<style type="text/css">
+		img {
+			border:1px solid #ccc;
+			padding:4px;
+			border-radius: 5px;
+		}
+	</style>
+</head>
+<body>
+	<script type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript">
+		function debug(msg){
+			var log = $('#debuglog');
+			if(log.length == 0){
+				log = $('<div id="debuglog"><h1>Debug Log</h1></div>');
+				log.appendTo(document.body);
+			}
+			log.append($('<div>').text('msg'));
+		}
+		debug()
+	</script>    
+</body>
+</html> 
