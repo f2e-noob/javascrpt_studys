@@ -1,0 +1,48 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>javascript练习</title>
+	<style type="text/css">
+		a {  
+		    position: relative;  
+		    display: inline-block;  
+		    outline: none;  
+		    text-decoration: none;  
+		    color: #000;  
+		    font-size: 32px;  
+		    padding: 0 10px;  
+		}  
+		  
+		/* 大框 */  
+		a:hover::before, a:hover::after {   
+		    content: "";  
+		    display: block;  
+		    position: absolute;  
+		 }  
+		  
+		/* 小框 */  
+		 a:hover::after {  
+		    top: 0%;  
+		    left: 0%;  
+		    width: 100%;  
+		    height: 100%;  
+		    border: 2px solid #DDD;  
+		 }  
+		 .test{  
+		  -moz-transform:scale(2,2);  
+		  -webkit-transform:scale(2,2);  
+		  -o-transform:scale(2,2);  
+		  background:url(images/ipad.jpg) no-repeat;    
+		  width:198px;  
+		  height:133px;   
+		}  
+	</style>
+</head>
+<body>
+	<a href="">Creative</a>
+	<a href="">Button</a>
+	<a href="">Styles</a>
+	<div class="test"></div>
+</body>
+</html> 
