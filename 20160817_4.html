@@ -17,26 +17,26 @@
          margin:0 20px 0 0
         }
         #before-after li a {
-         height: 365px;
+         height: 120px;
         }
         #before-after li a, #before-after li img {
          display: block;
-         height: 220px;
+         height: 120px;
          overflow: hidden;
          position: relative;
          transition: all 0.3s ease 0s;
-         width: 390px;
+         width: 200px;
+         border:1px solid #ccc;
         }
         #before-after li a:before, #before-after li a:after {
          content: "";
-         height: 220px;
+         height: 120px;
          left: 0;
          opacity: 0;
          position: absolute;
          top: 0;
          transition: opacity 0.4s ease 0s;
-         visibility: hidden;
-         width: 390px;
+         width: 200px;
         }
         #before-after li a:before {
          background:#7a7fd2;
@@ -44,11 +44,10 @@
         }
         #before-after li a:hover:before {
          opacity: 0.8;
-         visibility: visible;
         }
         #before-after li:hover a:after {
          z-index:2;
-         background:url(images/play.png) center center no-repeat;
+         background:url(images/top-icon.png) center center no-repeat;
         }
         #before-after li a:hover:after {
          opacity: 1;
@@ -63,15 +62,15 @@
     <ul>
       <li>
         <a href="#">
-          <img src="images/ipad.jpg" width="390" alt=""></a>
-      </li>
-      <li>
-        <a href="#">
           <img src="images/ipad.jpg" alt=""></a>
       </li>
       <li>
         <a href="#">
-          <img src="images/ipad.png" alt=""></a>
+          <img src="images/ipod.jpg" alt=""></a>
+      </li>
+      <li>
+        <a href="#">
+          <img src="images/mac.jpg" alt=""></a>
       </li>
     </ul>
   </body>   

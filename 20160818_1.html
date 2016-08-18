@@ -1,0 +1,506 @@
+{% extends ../road/base.html %}
+
+{% block style %}
+<link href="/static/css/jquery.datatables.css" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/dropzone.css" />
+<style type="text/css">
+    #profile{
+      padding:10px;
+      min-height: 400px;
+    }
+    .label-success {
+      background-color: #82af6f;
+    }
+    .tabel-operation{
+      margin: 4px 9px 0 0;
+    }
+    .dataTable{
+      margin-bottom: 0px;
+    }
+    .dataTables_scrollBody{
+      margin-top: -2px;
+    }
+    .chosen{
+      min-height: 100px;
+      max-height: 300px;
+    }
+    .nav-tabs{
+      border-bottom: none;
+    }
+    .nav-tabs>li>a{
+      height: 38px;
+    }
+
+    .pcontent{
+      height:800px;
+    }
+    .prightbox{
+      min-height: 100%;
+      position: absolute;
+      overflow-y: auto;
+      overflow-x: hidden;
+      right:17px;
+      top:8px;
+      width:278px;
+      border-radius: 4px;
+    }
+    .map_box{
+      position: relative;
+      margin-right: 286px;
+    }
+    .panel-title a{
+      font-size: 14px;
+    }
+    .panel {
+      margin-bottom: 8px;
+    }
+    .panel-body{
+      border: 1px solid #D8D8D8;
+      border-top: none;
+      border-bottom-left-radius:3px;
+      border-bottom-right-radius:3px;
+    }
+    .tab-pane{
+      position: relative;
+    }
+    .chosen-container{
+        min-width: 180px!important;
+        max-width: 220px!important;
+    }
+    #yanghmapdiv,#sectionmapdiv,#roadmapdiv{
+      height: 800px;
+    }
+
+  </style>
+{% end %}
+
+{% block content %}
+{% from logic.roaddefine import ROAD_SECTION, ROAD_SECTION_VALUES, ROAD_SECTION_SORT_KEYS %}
+<div class="widget-box">
+	<div class="widget-header">
+		<div class="widget-toolbar no-border" style="float:left">
+			<ul class="nav nav-tabs" id="myTab">
+				<li class="active">
+					<a data-toggle="tab" href="#profile"> <i class="icon-list bigger-110"></i>
+						路段列表
+						<span class="badge badge-primary" style="margin-left:4px;">{{ len(roads)}}个单元</span>
+					</a>
+				</li>
+				<li class="">
+					<a data-toggle="tab" href="#roadnet_map"> <i class="fa fa-map-marker bigger-110"></i>
+						路网地图
+					</a>
+				</li>
+			</ul>
+		</div>
+		<div class="tabel-operation pull-right">
+			<div class="btn-group">
+				<a id="custom-col" class="btn btn-sm btn-danger" href="#modal-columns" data-toggle="modal" title="自定义列">自定义列</a>
+				<a class="btn btn-sm btn-success" title="导出">导出</a>
+			</div>
+		</div>
+	</div>
+
+	<div class="widget-body">
+		<div class="tab-content bg-grey" style="overflow-x:auto">
+			<div id="profile" class="tab-pane active">
+				<div id="term" class="well bg-white">
+					<select class="smart-select chosen" style="width:180px;" id="sel-guanldw" name="guanldw" sel="{{ bind_args.get('guanldw','')}}" url="/manage/company/list?type=0&tag=road" kv="_id|name" arg="guanldw">
+						<option value="">全部管理单位</option>
+					</select>
+
+					<select class="smart-select chosen" style="width:230px;" id="sel-yanghdw" name="yanghdw" sel="{{ bind_args.get('yanghdw','')}}" url="/manage/company/list?type=1&tag=road" kv="_id|name" arg="yanghdw">
+						<option value="">全部养护单位</option>
+					</select>
+					{% for name,code,vals in user_column_map %}
+					<select class='smart-select chosen'  name='{{code}}' sel="{{ bind_args.get(code,'')}}">
+						<option value="">全部{{ name }}</option>
+						{% for v in vals %}
+						<option value="{{v}}">{{v}}</option>
+						{% end %}
+					</select>
+					{% end %}
+					<a href="/manage/roadnet" class="btn btn-default">重置</a>
+				</div>
+				<div class="space-4"></div>
+				<div class="table-responsive">
+					<table class="table table-bordered" id="table_sort">
+						<thead>
+							<tr>
+								<th class="th1 text-center">#</th>
+								<th class="th4">道路</th>
+								{% for item in columns %}
+								<th class="djth9">{{ road_section_map.get(item, '') }}</th>
+								{% end %}
+							</tr>
+						</thead>
+						<tbody>
+							{% for i,item in enumerate(roads) %}
+							<!-- 判断用户是否有权限操作此路段 -->
+
+							<tr _id="{{ item.get('_id') }}">
+								<td class="th1 text-center">{{ i+1 }}</td>
+								<td class="th4">
+									<a href='/manage/road/guany?roadid={{item.get("roadid")}}'>{{ road_map.get(item.get('roadid'))}}</a>
+								</td>
+								{% for col in columns %}
+                          {% if col in ['lumjg', 'daollb', 'jiaotldj', 'jiclx'] %}
+								<td class="{{ col }} djth9">{{ ROAD_SECTION_VALUES[col].get(item.get(col, ''), '') }}</td>
+								{% elif col in Floatfields %}
+								<td class="{{ col }} djth9">
+									{% if item.get(col, '') %}{{ '%.2f' % float(item.get(col, '')) }}{% end %}
+								</td>
+								{% elif col in ['guanldw', 'yanghdw'] %}
+								<td class="{{ col }} djth9">{{ mapCompanyIdName.get(item.get(col, ''), '') }}</td>
+								{% else %}
+                              {% if col == 'order'%}
+								<td class="{{ col }} djth9">{{ int(item.get(col, 0)) }}</td>
+								{% else %}
+								<td class="{{ col }} djth9">{{ item.get(col, '') }}</td>
+								{% end %}
+
+                          {% end %}
+                        {% end %}
+							</tr>
+							{% end %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<div id="roadnet_map"  class="tab-pane">
+				<input type="hidden" id="cityname" cityname="{{ handler.city_feature.get('cityname', '') }}" />
+				<div class="well">
+					<div class="map_box">
+						<div class="well" id="roadmapdiv" style="width:100%;"></div>
+						<!-- 地图 -->
+					</div>
+					<div class="prightbox">
+						<div class="panel panel-primary gis-panel">
+							<div class="panel-heading" data-toggle="collapse" href="#panel0">
+								<h4 class="panel-title">
+									<i class="fa fa-bar-chart"></i>
+									<a>道路路面等级统计表</a>
+								</h4>
+							</div>
+							<div id="panel0" class="panel-collapse in" style="height: auto;">
+								<div class="panel-body" style="min-height:300px;">
+									<div style='font-size:24px;'>
+										<!--统计图表-->
+										<div id="lm_tj"></div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="panel panel-primary gis-panel">
+							<div class="panel-heading" data-toggle="collapse" href="#tul">
+								<h5 class="panel-title">
+									<i class="fa fa-image"></i>
+									<a>图例</a>
+								</h5>
+							</div>
+							<div id="tul" class="panel-collapse in" style="height: auto;">
+								<div class="panel-body" style="min-height:150px;">
+									<div class="form-group">
+										<input type="checkbox" class="roadselectgrade" value="A" checked/>
+										<span style="width:30px; height:8px; background:#1CAF9A; display:inline-block"></span>
+										<span class="data_type" class="level" name="level" value="A">等级A级</span>
+									</div>
+									<div class="form-group">
+										<input type="checkbox" class="roadselectgrade" value="B" checked/>
+										<span style="width:30px; height:8px; background:#428bca; display:inline-block"></span>
+										<span class="data_type" class="level" name="level" value="B">等级B级</span>
+									</div>
+									<div class="form-group">
+										<input type="checkbox" class="roadselectgrade" value="C" checked/>
+										<span style="width:30px; height:8px; background:#f0ad4e; display:inline-block"></span>
+										<span class="data_type" class="level" name="level" value="C">等级C级</span>
+									</div>
+									<div class="form-group">
+										<input type="checkbox" class="roadselectgrade" value="D" checked/>
+										<span style="width:30px; height:8px; background:#d9534f; display:inline-block"></span>
+										<span class="data_type" class="level" name="level" value="D">等级D级</span>
+									</div>
+									<div class="form-group">
+										<input type="checkbox" class="roadselectgrade" value="未评估" checked/>
+										<span style="width:30px; height:8px; background:#DA70D6; display:inline-block"></span>
+										<span class="data_type" class="level" name="level" value="未评估">未评估</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- 自定义列 -->
+<div id="modal-columns" class="modal big-modal" data-backdrop="static">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h5>自定义列(不超过10个字段)</h5>
+			</div>
+			<form class="form-horizontal">
+				<div class="modal-body">
+					<div id="columns">
+						{% set index = 1 %}
+            {% for item in ROAD_SECTION %}
+						<legend>
+							<h5 class="blue">
+								{{ index }}&nbsp;{{ item[0] }}
+								<a class="select_item_all pull-right btn btn-xs btn-white" key="{{ item[0] }}">全选</a>
+								<a class="remove_item_all pull-right btn btn-xs btn-white" key="{{ item[0] }}">清空</a>
+							</h5>
+						</legend>
+						{% set index = index + 1 %}
+              {% for val in item[1] %}
+                  {% if list == type(val[1]) %}
+                      {% for k in val[1] %}
+						<span class="label class-column label-{{ item[0] }} {% if k[1] in columns %} label-success selected {% else %} label-default {% end %}" key="{{ k[1] }}">{{ k[0] }}</span>
+						{% end %}
+                  {% else %}
+						<span class="label class-column label-{{ item[0] }} {% if val[1] in columns %} label-success selected {% else %} label-default {% end %}" key="{{ val[1] }}">{{ val[0] }}</span>
+						{% end %}
+              {% end %}
+            {% end %}
+						<legend>
+							<h5 class="blue">
+								{{ index }}&nbsp;网络数据
+								<a class="select_item_all pull-right btn btn-xs btn-white" key="网络数据">全选</a>
+								<a class="remove_item_all pull-right btn btn-xs btn-white" key="网络数据">清空</a>
+							</h5>
+						</legend>
+						{% for name,code,vals in user_column_map %}
+						<span class="label class-column label-{{ code }} {% if code in columns %} label-success selected {% else %} label-default {% end %}" key="{{code }}">{{ name }}</span>
+						{% end %}
+					</div>
+				</div>
+
+				<div class="modal-footer wizard-actions">
+					<div class="pull-left">
+						<span class="label-default" >&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+						未显示列
+						<span class="label-success" style="background:#82af6f">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+						已显示列
+					</div>
+					<button class="btn btn-primary btn-sm modal-submit" type="button">
+						确定
+						<i class="fa fa-check"></i>
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+{% end %}
+
+{% block script %}
+<script src="/static/js/jquery.datatables.min.js"></script>
+
+<script src="http://api.map.baidu.com/api?v=2.0&ak=009895f0f586d07a5efaec6b51c6e82b"></script>
+<script src="/static/js/baidumap.js"></script>
+<script src="/static/js/highcharts.js"></script>
+<script src="/static/js/smart_select.js"></script>
+<script src="/static/js/roadgis.js"></script>
+<script>
+ $(function () {
+    util.setNav('.roadnet');
+    function search(){
+        var url = '/manage/roadnet?';
+        $('.smart-select').each(function(i,e){
+            if($(e).attr('name') && $(e).val().length>0){
+                url = url+$(e).attr('name') + '='+$(e).val() + '&';
+            }
+        })
+
+        location.href = url;
+    }
+    $('.smart-select').change(function(event) {
+        search()
+    });
+
+    // 自定义列
+    $('.class-column').on('click', function() {
+      if ($(this).hasClass("label-default")) {
+        $(this).removeClass("label-default").addClass("label-success");
+        $(this).addClass("selected");
+      } else {
+        $(this).removeClass("label-success").addClass("label-default");
+        $(this).removeClass("selected");
+      }
+    });
+
+
+  $('#modal-columns .modal-submit').on('click', function() {
+
+    var sel = [];
+    $('#modal-columns .selected').each(function(index, val) {
+      sel.push($(val).attr("key"));
+    });
+    if (sel.length > 10) {
+      alert("自定义列最大列数为10!");
+      return;
+    }
+
+    location.href = "/manage/roadnet?columns=" + sel;
+  });
+
+  $('#table_sort').dataTable(
+    {
+      "bPaginate": false, //翻页功能
+      "bLengthChange": false, //改变每页显示数据数量
+      "bFilter": false, //过滤功能
+      "bSort": true, //排序功能
+      "bInfo": false,//页脚信息
+      "bAutoWidth": false,//自动宽度
+      "sScrollY": "700px",
+      "bScrollCollapse": true,
+      "oLanguage":{
+          "sEmptyTable": "无数据",
+      },
+        "aoColumnDefs": [
+            { "bSortable": false, "aTargets": [ 0 ] } ]
+  });
+
+
+
+      //编辑轨迹
+    var maps = [];
+    // 存储所有的折线
+    var polylinelists = [];
+    // 存储所有的点
+    var markerlists = [];
+    // 存储所有的统计表options
+
+    var winopts = {
+        width:400,
+        height: 250,
+        enableMessage:false
+    };
+
+    // 清空界面
+    function clearmap(index){
+        for (var j = 0; j < polylinelists[index].length; j++) {
+            maps[index].removeOverlay(polylinelists[index][j]);
+        }
+        polylinelists[index]= [];
+        for (var j = 0; j < markerlists[index].length; j++) {
+            maps[index].removeOverlay(markerlists[index][j]);
+        }
+        markerlists[index] = [];
+    }
+
+    // 根据传递进来的路段的经纬度,进行绘制
+    function drawByLngLat(data, level, id, roadid, level_arr, map, polylinelist) {
+        if (!Array.isArray(data)) {
+            return;
+        }
+        var pointarr = [];
+        for (var i = 0; i < data.length; i++) {
+            var lng = data[i][1],
+                lat = data[i][0];
+            if ("number" == typeof lng && "number" == typeof lat) {
+                pointarr.push(new BMap.Point(lng, lat));
+            }
+        }
+        var polyline;
+        // 根据不同的等级,具有不同的颜色: A(blue), B(yellow), C(green), D(red)
+        if (level_arr[0] === level) {
+            polyline = new BMap.Polyline(pointarr, {strokeColor : "#1CAF9A", strokeWeight : 5, strokeOpacity : 1});
+        } else if (level_arr[1] === level) {
+            polyline = new BMap.Polyline(pointarr, {strokeColor : "#428bca", strokeWeight : 5, strokeOpacity : 1});
+        } else if (level_arr[2] === level) {
+            polyline = new BMap.Polyline(pointarr, {strokeColor : "#f0ad4e", strokeWeight : 5, strokeOpacity : 1});
+        } else if (level_arr[3] === level) {
+            polyline = new BMap.Polyline(pointarr, {strokeColor : "#d9534f", strokeWeight : 5, strokeOpacity : 1});
+        } else  {
+            polyline = new BMap.Polyline(pointarr, {strokeColor : "#DA70D6", strokeWeight : 5, strokeOpacity : 1});
+        } 
+        
+        map.addOverlay(polyline);
+        polylinelist.push(polyline);
+        //单击事件
+        polyline.addEventListener('click',function(e){
+            var point = e.point;
+            $.post('/manage/roadsection/info',{_id:id,roadid:roadid},function(rs){
+                if (rs.status) {
+                    var infowindow = new BMap.InfoWindow(rs.data,winopts);
+                    map.openInfoWindow(infowindow,point);
+                };
+            })
+        });
+    }
+
+    // 增加起点/终点的圆圈效果
+    function drawByPoint(section, map, markerlist) {
+        var data = section.location;
+        if (!Array.isArray(data)) {
+            return;
+        }
+        for (var i = 0; i < data.length; i++) {
+            var lng = data[i][1],
+                lat = data[i][0];
+            if ("number" == typeof lng && "number" == typeof lat) {
+                var myIcon = new BMap.Icon("../../static/images/circle3.png", new BMap.Size(18,18));
+                var marker = new BMap.Marker(new BMap.Point(lng, lat), {icon : myIcon});
+                map.addOverlay(marker);
+                markerlist.push(marker);
+            }
+        }
+    }
+
+    // 初始化地图
+    function init(arr) {
+      for (var i = 0; i < arr.length; i++) {
+          polylinelists.push([]);
+          markerlists.push([]);
+          maps.push(new BMap.Map(arr[i]));
+          var cityname = $('#cityname').attr('cityname');
+          console.log(arr[i], cityname);
+          maps[i].centerAndZoom(cityname,15);
+          maps[i].enableScrollWheelZoom();
+          // 地图平移缩放控件
+          maps[i].addControl(new BMap.NavigationControl);
+          // 地图类型控件
+          maps[i].addControl(new BMap.MapTypeControl);
+
+          var cr = new BMap.CopyrightControl({anchor: BMAP_ANCHOR_BOTTOM_RIGHT});   //设置版权控件位置
+          maps[i].addControl(cr); //添加版权控件
+
+          var bs = maps[i].getBounds();   //返回地图可视区域
+          cr.addCopyright({id: 1, content: "<a href='#' style='color:#fff; background:#817fd1; font:normal 12px 微软雅黑; border-radius:2px; padding:5px 10px; text-decoration: none; line-height:26px;'>源清慧虹科技有限公司</a>", bounds: bs});
+      }
+
+      // 绘制道路路面技术状况GIS分布图
+      var cond = {};
+      var pqi_level = '';
+      $('.roadselectgrade:checked').each(function(i,item){
+          pqi_level = pqi_level + '|' +$(item).attr('value');
+      });
+      pqi_level = pqi_level.slice(1);
+      cond['pqi_level'] = pqi_level;
+      loadRoad(cond);
+  }
+
+  init(['roadmapdiv']);
+
+  function loadRoad(cond) {
+    $.post('/manage/road/gis', cond, function(rs) {
+        if (rs.status) {
+            clearmap(0);
+            var roadsections = rs.roadsections;
+            // 默认为cd_pci_level
+            var score_level = $('#sel_road_show_field').val() || 'cd_pci_level';
+            for (var i = 0; i < roadsections.length; i++) {
+                drawByLngLat(roadsections[i].location, roadsections[i][score_level],roadsections[i]._id,roadsections[i].roadid, ['A', 'B', 'C', 'D', '未评估'], maps[0], polylinelists[0]);
+            }
+            drawLevelCount(['A', 'B', 'C', 'D', '未评估'], rs.road_level_count, options[0]);
+        }
+    });
+  }
+});
+</script>
+{% end %}
